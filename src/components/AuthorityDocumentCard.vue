@@ -184,7 +184,7 @@
             class="overflow-y-auto flex-grow-1"
           >
             <v-list-item
-              v-for="(mapping, idx) in getSetArray(authorityDocument.ADMapping)"
+              v-for="(mapping, idx) in getSetArray(authorityDocument.ADMappings)"
               :key="idx"
             >
               <v-list-item-content>
