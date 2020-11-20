@@ -5,7 +5,7 @@ Before proceeding, you will need a [RapidAPI](https://www.rapidapi.com/) account
 
 This project uses [Yarn](https://classic.yarnpkg.com/en/docs/install) for package management, development, and build tooling.
 
-Copy the contents of the `.env.template` file to `.env` and add your RapidAPI API key to the `APP_API_KEY` variable line.
+Copy the contents of the `.env.template` file to `.env` and add your RapidAPI API key to the `VUE_APP_API_KEY` variable line.
 
 From the project directory you may run the following:
 
