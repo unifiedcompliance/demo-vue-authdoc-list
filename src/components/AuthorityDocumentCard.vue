@@ -74,7 +74,7 @@
                 class="font-weight-bold d-flex align-center ma-0"
                 style="height: 35px"
               >
-                <span>Date:</span>
+                <span>Effective Date:</span>
               </div>
             </v-card>
             <v-card class="d-flex flex-column ml-2 align-start" elevation="0">
