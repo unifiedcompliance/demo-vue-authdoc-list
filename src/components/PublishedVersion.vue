@@ -58,7 +58,7 @@
           class="font-weight-regular d-flex align-center"
           style="height: 30px"
         >
-          {{ data.published_date | displayData }}
+          {{ data.published_date | displayData | dateFormat }}
         </div>
       </v-card>
     </v-card>
@@ -160,6 +160,20 @@ export default {
         return value;
       }
       return 'unknown';
+    },
+    dateFormat: function (value) {
+      if (!value || value === 'unknown') {
+        return 'unknown';
+      }
+
+      let d = new Date(value);
+
+      if (Number.isNaN(d.getMonth())) {
+        let arr = value.split(/[- :]/);
+        d = new Date(arr[0], arr[1]-1, arr[2], arr[3], arr[4], arr[5]);
+      }
+
+      return d.toLocaleDateString('en-US');
     }
   }
 };

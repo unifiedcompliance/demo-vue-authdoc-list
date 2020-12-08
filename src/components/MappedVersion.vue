@@ -16,7 +16,7 @@
         <v-card class="d-flex align-center" elevation="0">
           <div class="font-weight-bold">Release Date:&nbsp;</div>
           <div class="font-weight-regular ml-2">
-            {{ data.release_date | displayData }}
+            {{ data.release_date | displayData | dateFormat }}
           </div>
         </v-card>
       </v-col>
@@ -88,6 +88,20 @@ export default {
         return value;
       }
       return 'unknown';
+    },
+    dateFormat: function (value) {
+      if (!value || value === 'unknown') {
+        return 'unknown';
+      }
+
+      let d = new Date(value);
+
+      if (Number.isNaN(d.getMonth())) {
+        let arr = value.split(/[- :]/);
+        d = new Date(arr[0], arr[1]-1, arr[2], arr[3], arr[4], arr[5]);
+      }
+
+      return d.toLocaleDateString('en-US');
     }
   },
   methods: {
