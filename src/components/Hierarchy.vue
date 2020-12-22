@@ -164,10 +164,10 @@ export default {
       const idx = this.selectedItems.indexOf(item.id);
       if (idx > -1) {
         this.selectedItems.splice(idx, 1);
-        this.restoreSelectedTreeItems(this.treeItems);
       } else {
         this.selectedItems.push(item.id);
       }
+      this.restoreSelectedTreeItems(this.treeItems);
 
       this.$emit('item-selected', item);
     },
