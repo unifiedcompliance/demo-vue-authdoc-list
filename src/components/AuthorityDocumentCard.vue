@@ -3,7 +3,6 @@
     <v-app-bar
       absolute
       elevation="0"
-      scroll-target="adcardcontent"
       class="ad-doc-card-header-bar"
     >
       <div class="addoc-card-header">
@@ -274,5 +273,11 @@ export default {
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
+}
+</style>
+
+<style>
+.v-dialog {
+  overflow: hidden;
 }
 </style>
