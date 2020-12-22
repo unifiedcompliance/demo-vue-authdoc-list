@@ -12,7 +12,7 @@
       >
         <template v-slot:prepend="{ item, open }">
           <v-icon v-if="item.icon">
-            {{ open && item.openIcon ? item.openIcon : item.icon }}
+            {{ open && item.iconOpen ? item.iconOpen : item.icon }}
           </v-icon>
         </template>
 
@@ -50,7 +50,7 @@
       >
         <template v-slot:prepend="{ item, open }">
           <v-icon v-if="item.icon">
-            {{ open && item.openIcon ? item.openIcon : item.icon }}
+            {{ open && item.iconOpen ? item.iconOpen : item.icon }}
           </v-icon>
         </template>
 
