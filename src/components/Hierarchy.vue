@@ -27,11 +27,7 @@
 
         <template v-slot:append="{ item }">
           <div class="align-center d-flex">
-            <v-icon
-                v-if="item.info"
-                medium
-                @click.stop="infoItem(item.id)"
-            >
+            <v-icon v-if="item.info" medium @click.stop="infoItem(item.id)">
               mdi-information-outline
             </v-icon>
             <v-checkbox
@@ -69,11 +65,7 @@
 
         <template v-slot:append="{ item }">
           <div class="align-center d-flex">
-            <v-icon
-                v-if="item.info"
-                medium
-                @click.stop="infoItem(item.id)"
-            >
+            <v-icon v-if="item.info" medium @click.stop="infoItem(item.id)">
               mdi-information-outline
             </v-icon>
             <v-checkbox
@@ -88,19 +80,19 @@
   </div>
 </template>
 <script>
-import _ from "lodash";
+import _ from 'lodash';
 
 export default {
   name: 'Hierarchy',
   data: () => {
     return {
       selectedItems: []
-    }
+    };
   },
   props: {
     viewType: {
       validator: (val) => {
-        return ['single', 'double'].indexOf(val) !== -1
+        return ['single', 'double'].indexOf(val) !== -1;
       }
     },
     filterKey: {
@@ -237,9 +229,6 @@ export default {
   padding: 5px;
   border-bottom: 1px solid #999999;
 }
-.v-messages {
-  display: none;
-}
 .v-input--selection-controls {
   margin: 0;
   padding: 0;
@@ -247,8 +236,13 @@ export default {
 </style>
 
 <style>
+.v-treeview-node__root {
+  min-height: 35px;
+}
 .v-input__slot {
-  margin-top: 13px !important;
   margin-bottom: 0 !important;
+}
+.v-messages {
+  display: none;
 }
 </style>

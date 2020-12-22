@@ -142,7 +142,6 @@ export default {
   width: 150px !important;
 }
 .documents {
-  border: 1px solid #999999;
   display: flex;
 }
 .tree-label {
