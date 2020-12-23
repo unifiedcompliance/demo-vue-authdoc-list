@@ -70,7 +70,7 @@
 </template>
 <script>
 export default {
-  name: 'MappedVerson',
+  name: 'MappedVersion',
   props: {
     data: {
       type: Object,

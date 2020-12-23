@@ -39,70 +39,16 @@
       </v-item-group>
     </div>
     <div class="documents">
-      <div class="document-tree">
-        <p class="tree-label">Categories and Authority Documents</p>
-        <v-treeview
-          v-model="tree"
-          :items="geographyHierarchy"
-          :search="filterKey"
-          :filter="filterTree"
-          :open="expandedNodes"
-          item-key="id"
-          open-on-click
-        >
-          <template v-slot:label="{ item }">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <span v-bind="attrs" v-on="on">{{ item.name }}</span>
-              </template>
-              <span>{{ item.name }}</span>
-            </v-tooltip>
-          </template>
-
-          <template v-slot:prepend="{ item, open }">
-            <v-icon v-if="item.category_fk !== 1">
-              {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
-            </v-icon>
-            <v-icon v-else>
-              {{ files.txt }}
-            </v-icon>
-          </template>
-          <template v-slot:append="{ item }">
-            <div
-              v-if="item.category_fk === 1"
-              class="remove-action d-flex"
-              style="align-items: center; justify-content-center;"
-            >
-              <v-icon
-                medium
-                @click.stop="showDocumentCard(item.authority_document_fk)"
-                >mdi-information-outline
-              </v-icon>
-              <div
-                class="d-flex"
-                style="align-items: center; justify-content-center;"
-              >
-                <v-checkbox
-                  v-model="item.selected"
-                  @click.stop="selectDocument(item)"
-                ></v-checkbox>
-              </div>
-            </div>
-          </template>
-        </v-treeview>
-      </div>
-      <div class="selected-list">
-        <ul>
-          <li class="list-header">
-            <div class="document-name">Selected List</div>
-            <div class="remove-action">Remove</div>
-          </li>
-          <li v-for="(doc, idx) in selectedDocuments" :key="idx">
-            <selected-document-item v-if="doc.selected" :doc="doc" />
-          </li>
-        </ul>
-      </div>
+      <hierarchy
+        @item-info="showDocumentCard"
+        viewType="double"
+        treeLabel="Categories and Authority Documents"
+        selectedTreeLabel="Selected Authority Documents"
+        :filterKey="filterKey"
+        :treeItems="geographyHierarchy"
+      ></hierarchy>
     </div>
+
     <v-dialog v-model="adCardDlg">
       <authority-document-card
         v-if="adCardDlg"
@@ -115,16 +61,11 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import SelectedDocumentItem from '../components/SelectedList/SelectedDocumentItem.vue';
 import {
   FETCH_GEOGRAPHY_HIERARCHY,
   GET_GEOGRAPHY_HIERARCHY,
   FETCH_SUBJECT_MATTER_HIERARCHY,
-  SET_SHOW_LOADING_PROGRESS,
-  GET_SELECTED_DOCUMENTS,
-  SET_ADD_DOCUMENT_TO_SELECTED,
-  GET_EXPANDED_TREE_NODES,
-  SET_FILTERED_DOCUMTENTS
+  SET_SHOW_LOADING_PROGRESS
 } from '../store/types';
 import {
   HIERARCHY_GEOGRAPHY,
@@ -132,11 +73,8 @@ import {
 } from '../store/constant';
 export default {
   components: {
-    AuthorityDocumentCard: () =>
-      import(
-        /* webpackChunkName: "AuthorityDocumentCard" */ '../components/AuthorityDocumentCard'
-      ),
-    SelectedDocumentItem
+    Hierarchy: () => import('../components/Hierarchy'),
+    AuthorityDocumentCard: () => import('../components/AuthorityDocumentCard')
   },
   data: () => ({
     searchKey: '',
@@ -159,14 +97,7 @@ export default {
     filterKey: ''
   }),
   computed: {
-    ...mapGetters({ geographyHierarchy: `${GET_GEOGRAPHY_HIERARCHY}` }),
-    ...mapGetters({ selectedDocuments: `${GET_SELECTED_DOCUMENTS}` }),
-    filterTree() {
-      const filterFunction = (item, search) => {
-        return item.name.indexOf(search) > -1;
-      };
-      return filterFunction;
-    }
+    ...mapGetters({ geographyHierarchy: `${GET_GEOGRAPHY_HIERARCHY}` })
   },
   methods: {
     async onHierarchyChange(hr) {
@@ -181,13 +112,6 @@ export default {
           break;
       }
       await this.$store.commit(SET_SHOW_LOADING_PROGRESS, false);
-      if (!this.isFiltering) {
-        await this.$store.commit(SET_FILTERED_DOCUMTENTS, {
-          searchKey: '',
-          hierarchy: this.hierarchy
-        });
-      }
-      this.expandedNodes = this.$store.getters[GET_EXPANDED_TREE_NODES];
     },
     onKeyUp(e) {
       if (e.key === 'Enter') {
@@ -195,27 +119,12 @@ export default {
       }
     },
     async onClearSearchKey() {
-      await this.$store.commit(SET_FILTERED_DOCUMTENTS, {
-        searchKey: '',
-        hierarchy: this.hierarchy
-      });
       this.isFiltering = false;
       this.filterKey = '';
-      this.expandedNodes = this.$store.getters[GET_EXPANDED_TREE_NODES];
     },
     async onSearch() {
-      await this.$store.commit(SET_FILTERED_DOCUMTENTS, {
-        searchKey: this.searchKey,
-        hierarchy: this.hierarchy
-      });
-      this.isFiltering = this.searchKey === '' ? false : true;
-      this.expandedNodes = this.$store.getters[GET_EXPANDED_TREE_NODES];
+      this.isFiltering = this.searchKey !== '';
       this.filterKey = this.searchKey;
-    },
-    selectDocument(item) {
-      if (item.selected) {
-        this.$store.commit(SET_ADD_DOCUMENT_TO_SELECTED, item);
-      }
     },
     showDocumentCard(id) {
       this.selectedAdID = id.toString();
@@ -233,7 +142,6 @@ export default {
   width: 150px !important;
 }
 .documents {
-  border: 1px solid #999999;
   display: flex;
 }
 .tree-label {
@@ -245,22 +153,9 @@ export default {
   width: 50%;
   border-right: 1px solid #999999;
   overflow-x: auto;
-}
-.selected-list {
-  width: 50%;
-  ul {
-    list-style: none;
-    padding: 0;
-    li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 5px 0;
-      &.list-header {
-        padding: 5px;
-        border-bottom: 1px solid #cccccc;
-      }
-    }
+
+  &:last-child {
+    border-right: none;
   }
 }
 </style>

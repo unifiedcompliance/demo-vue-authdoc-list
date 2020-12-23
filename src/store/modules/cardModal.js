@@ -13,9 +13,8 @@ const actions = {
     try {
       const res = await axios.get(`AuthorityDocument/${adID}`);
       context.commit(SET_AUTHORITY_DOCUMENT, res.data);
-      console.log('[document]', res.data);
     } catch (e) {
-      console.log('[AD Error]', e);
+      console.log('[error]', e);
     }
   }
 };
