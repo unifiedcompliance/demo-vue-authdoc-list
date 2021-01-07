@@ -45,3 +45,116 @@ The [Authority Document Library Spec Sheet](https://theucf.info/GH-AD-Library) c
 reference.
 
 The [Vue Configuration Reference](https://cli.vuejs.org/config/) contains resources for additional customization.
+
+## Universal Hierarchy Component
+
+We leverage a universal hierarchy component that can be repurposed for multiple different hierarchy based elements from 
+preprocessed data sets. The documentation for it is as follows:
+
+### Preprocessing
+
+Each hierarchical list of items will need to be preprocessed from the API response/data set you wish to use. Each item 
+should be an object containing the following structure:
+
+```javascript
+    {
+      id: "1", // String - Unique identifier value
+      name: "Item Name", // String - Name
+      icon: "mdi-folder" // String - Any available mdi icon identifier
+      iconOpen: "mdi-folder-open", // String|Boolean - Any available mdi icon identifier, or false if the icon shouldn't change when expanded
+      info: true, // Boolean - If a clickable info icon should be displayed
+      selectable: true, // Boolean - If the item should be selectable
+      selected: false, // Boolean - If the item should be selected
+      children: [] // Array - A nested array of children items
+    }
+```
+
+An example of a preprocessing functions from the Authority Documents list can be found in `src/store/modules/search.js`. 
+The geography list preprocessing function is included in the following example:
+
+```javascript
+    function structureGeographyTree(documents) {
+      const dataTree = [];
+      const treeList = [];
+
+      for (const item of documents) {
+        dataTree.push({
+          id: item.authority_document_fk,
+          name: item.authority_document_name,
+          icon: item.category_fk === 1 ? 'mdi-file-document-outline' : 'mdi-folder',
+          iconOpen: item.category_fk === 1 ? false : 'mdi-folder-open',
+          info: item.category_fk === 1,
+          selectable: item.category_fk === 1,
+          selected: false,
+          ...item
+        });
+      }
+
+      for (const item of dataTree) {
+        if (item.parent_id === null) {
+          treeList.push(item);
+          continue;
+        }
+        for (const parItem of dataTree) {
+          if (parItem.authority_document_fk === item.parent_id) {
+            if (!parItem.children || parItem.children === 0) {
+              parItem.children = [];
+            }
+            parItem.children.push(item);
+            _.sortBy(parItem.children, [
+              function (o) {
+                return o.sort_value;
+              }
+            ]);
+            break;
+          }
+        }
+      }
+
+      _.sortBy(treeList, [
+        function (o) {
+          return o.sort_value;
+        }
+      ]);
+
+      return treeList;
+    }
+```
+
+### Implementation
+
+To implement the hierarchy component you will need to import it to the working component:
+
+```javascript
+    Hierarchy: () => import('../components/Hierarchy')
+```
+
+Implement a single hierarchical view without the selected items tree to the right:
+
+```
+    <hierarchy
+      @item-info="Function - The callback function to handle when an item's info button is clicked, it should accept the id of the item"
+      @item-selected="Function - The callback function to handle when an item is selected/unselected, it should accept the item object"
+      viewType="single"
+      treeLabel="String - Label for the tree"
+      :filterKey="Variable - A state based variable for filtering items in the tree by name"
+      :treeItems="Object - The preproccessed hierarchical nested list of items"
+    ></hierarchy>
+```
+
+Implement a double hierarchical view with the selected items tree to the right:
+
+```
+    <hierarchy
+      @item-info="Function - The callback function to handle when an item's info button is clicked, it should accept the id of the item"
+      @item-selected="Function - The callback function to handle when an item is selected/unselected, it should accept the item object"
+      viewType="double"
+      treeLabel="String - Label for the tree"
+      selectedTreeLabel="String - Label for the selected items tree"
+      :filterKey="Variable - A state based variable for filtering items in the tree by name"
+      :treeItems="Object - The preproccessed hierarchical nested list of items"
+    ></hierarchy>
+```
+
+You can access an array of selected items from `selectedItems` in the state of the component, or you can leverage the 
+`@item-selected` parameter to invoke custom handling.
